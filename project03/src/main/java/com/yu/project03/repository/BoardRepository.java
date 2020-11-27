@@ -1,6 +1,8 @@
 package com.yu.project03.repository;
 
 import com.yu.project03.domain.Board;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Collection;
@@ -18,5 +20,9 @@ public interface BoardRepository extends CrudRepository<Board, Long> {
 
     public List<Board> findByTitleContainingAndBnoGreaterThan(String title, Long num);
 
-    public List<Board> findByBnoGreaterThanOrderByBnoDesc(Long bno);
+    public List<Board> findByBnoGreaterThanOrderByBnoDesc(Long bno, Pageable pageable);
+
+    public List<Board> findByBnoGreaterThan(Long bno, Pageable pageable); // pageable의 정렬 기능을 사용
+
+    public Page<Board> findByBnoLessThan(Long bno, Pageable pageable);
 }

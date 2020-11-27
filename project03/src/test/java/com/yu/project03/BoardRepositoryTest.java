@@ -6,7 +6,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Collection;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -53,6 +60,35 @@ public class BoardRepositoryTest {
 
     @Test
     public void testByLike4() {
-        boardRepository.findByBnoGreaterThanOrderByBnoDesc(150L).forEach(board -> System.out.println(board));
+        Pageable pageable = PageRequest.of(0, 10);
+        Collection<Board> results = boardRepository.findByBnoGreaterThanOrderByBnoDesc(0L, pageable);
+
+        results.forEach(board -> System.out.println(board));
+    }
+
+    @Test
+    public void testByLike5() {
+        // Pageable 자체에서 sort 구현
+        Pageable pageable = PageRequest.of(0, 10, Sort.Direction.ASC, "bno");
+        Collection<Board> results = boardRepository.findByBnoGreaterThan(0L, pageable);
+
+        results.forEach(board -> System.out.println(board));
+    }
+
+    @Test
+    public void testByLike6() {
+        // Pageable 자체에서 sort 구현
+        Pageable pageable = PageRequest.of(0, 10, Sort.Direction.DESC, "bno");
+        Page<Board> result = boardRepository.findByBnoLessThan(50L, pageable); // 처음엔 데이터 가져오는 select, 다음엔 count 가져오는 select 두 번 실행
+
+        System.out.println("페이지 사이즈 : " + result.getSize());
+        System.out.println("총 페이지 수 : " + result.getTotalPages());
+        System.out.println("토탈 카운트 : " + result.getTotalElements());
+        System.out.println("Next는 : " + result.nextPageable());
+
+        List<Board> theBoards = result.getContent();
+
+        theBoards.forEach(board -> System.out.println(board));
+
     }
 }
