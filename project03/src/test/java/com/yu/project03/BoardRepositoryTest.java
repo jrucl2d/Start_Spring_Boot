@@ -1,6 +1,8 @@
 package com.yu.project03;
 
+import com.querydsl.core.BooleanBuilder;
 import com.yu.project03.domain.Board;
+import com.yu.project03.domain.QBoard;
 import com.yu.project03.repository.BoardRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,4 +110,33 @@ public class BoardRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10);
         boardRepository.findByPage(pageable).forEach(board -> System.out.println(board));
     }
+
+    // QueryDsl 사용
+    @Test
+    public void testPredicate(){
+        String type = "t";
+        String keyword = "17";
+
+        BooleanBuilder builder = new BooleanBuilder();
+        QBoard board = QBoard.board;
+
+        if(type.equals("t")){
+            builder.and(board.title.like("%" + keyword + "%"));
+        }
+
+        // bno > 0
+        builder.and(board.bno.gt(0L));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Board> result = boardRepository.findAll(builder, pageable);
+
+        System.out.println("페이지 사이즈 : " + result.getSize());
+        System.out.println("총 페이지 수 : " + result.getTotalPages());
+        System.out.println("토탈 카운트 : " + result.getTotalElements());
+        System.out.println("Next는 : " + result.nextPageable());
+
+        List<Board> list = result.getContent();
+        list.forEach(b -> System.out.println(b));
+    }
+
 }
