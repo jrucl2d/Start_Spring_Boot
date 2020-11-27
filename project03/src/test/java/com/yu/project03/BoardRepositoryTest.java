@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -89,6 +90,22 @@ public class BoardRepositoryTest {
         List<Board> theBoards = result.getContent();
 
         theBoards.forEach(board -> System.out.println(board));
+    }
 
+    // @Query를 사용
+    @Test
+    public void testByTitleQuery(){
+        boardRepository.findByTitle("17").forEach(board -> System.out.println(board));
+    }
+    
+    @Test
+    public void testByTitleQuery2(){
+        boardRepository.findByTitle2("17").forEach(arr -> System.out.println(Arrays.toString(arr))); // Object[]형으로 리턴됨
+    }
+
+    @Test
+    public void testByPage( ){
+        Pageable pageable = PageRequest.of(0, 10);
+        boardRepository.findByPage(pageable).forEach(board -> System.out.println(board));
     }
 }
