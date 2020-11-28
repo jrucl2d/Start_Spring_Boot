@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -61,5 +63,18 @@ public class SampleController {
 
         String result = "SUCCESS";
         model.addAttribute("result", result);
+    }
+
+    @GetMapping("/sample7")
+    public void sample7(Model model){
+        model.addAttribute("now", new Date());
+        model.addAttribute("price", 123456789);
+        model.addAttribute("title", "This is a just sample");
+        model.addAttribute("options", Arrays.asList("AAAA", "BBB", "CCC", "DDD"));
+    }
+
+    @GetMapping("/sample8")
+    public void sample8(Model model){
+
     }
 }

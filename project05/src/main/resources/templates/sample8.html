@@ -1,0 +1,17 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<ul>
+    <li><a th:href="@{http://localhost:8080/sample1}">sample1</a></li>
+    <li><a th:href="@{/project05/sample1}">sample1</a></li>
+    <li><a th:href="@{~/sample1(p1='aaa', p2='bbb')}">sample1</a></li>
+</ul>
+</body>
+</html>
