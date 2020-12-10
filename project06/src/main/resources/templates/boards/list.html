@@ -91,6 +91,17 @@
             theForm.submit();
         })
 
+        document.querySelectorAll(".boardLink").forEach(v => v.addEventListener("click", function (e) {
+            e.preventDefault();
+            const boardNo = this.href.split("/")[this.href.split("/").length - 1];
+            theForm.action = "/boards/view";
+            const newInput = document.createElement("input");
+            newInput.type = "hidden";
+            newInput.name = "bno";
+            newInput.value = boardNo;
+            theForm.appendChild(newInput)
+            theForm.submit();
+        }))
 
 
     </script>
