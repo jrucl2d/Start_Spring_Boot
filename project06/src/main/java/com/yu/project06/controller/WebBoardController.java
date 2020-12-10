@@ -54,4 +54,40 @@ public class WebBoardController {
         log.info("BNO : " + bno);
         boardRepository.findById(bno).ifPresent(board -> model.addAttribute("vo", board));
     }
+
+    @GetMapping("/modify")
+    public void modify(Long bno, @ModelAttribute("pageVO") PageVO vo, Model model){
+        log.info("MODIFY bno : " +bno);
+        boardRepository.findById(bno).ifPresent(v -> model.addAttribute("vo", v));
+    }
+
+    @PostMapping("/delete")
+    public String delete(Long bno, PageVO vo, RedirectAttributes redirectAttributes){
+        boardRepository.deleteById(bno);
+        redirectAttributes.addFlashAttribute("msg", "success");
+
+        redirectAttributes.addAttribute("page", vo.getPage());
+        redirectAttributes.addAttribute("size", vo.getSize());
+        redirectAttributes.addAttribute("type", vo.getType());
+        redirectAttributes.addAttribute("keyword", vo.getKeyword());
+        return "redirect:/boards/list";
+    }
+
+    @PostMapping("/modify")
+    public String modifyPost(Board board, PageVO vo, RedirectAttributes redirectAttributes){
+        boardRepository.findById(board.getBno()).ifPresent(origin -> {
+            origin.setTitle(board.getTitle());
+            origin.setContent(board.getContent());
+
+            boardRepository.save(origin);
+            redirectAttributes.addFlashAttribute("msg", "success");
+            redirectAttributes.addAttribute("bno", origin.getBno());
+        });
+
+        redirectAttributes.addAttribute("page", vo.getPage());
+        redirectAttributes.addAttribute("size", vo.getSize());
+        redirectAttributes.addAttribute("type", vo.getType());
+        redirectAttributes.addAttribute("keyword", vo.getKeyword());
+        return "redirect:/boards/view";
+    }
 }
