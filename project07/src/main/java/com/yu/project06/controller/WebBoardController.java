@@ -2,6 +2,7 @@ package com.yu.project06.controller;
 
 import com.yu.project06.domain.Board;
 import com.yu.project06.repository.BoardRepository;
+import com.yu.project06.repository.CustomCrudRepository;
 import com.yu.project06.vo.PageMaker;
 import com.yu.project06.vo.PageVO;
 import lombok.extern.java.Log;
@@ -22,13 +23,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class WebBoardController {
 
     @Autowired
-    private BoardRepository boardRepository;
+//    private BoardRepository boardRepository;
+    private CustomCrudRepository boardRepository;
 
     @GetMapping("/list") // 뒤에 ?page=11&size=11 를 붙이면 자동으로 파라미터 수집됨
     public void list(@ModelAttribute("pageVO") PageVO pageVO, Model model){ // PageableDefault 사용시 안 좋으므로 VO를 두고 사용
         Pageable pageable = pageVO.makePageable(0, "bno"); // 0이면 DESC
 
-        Page<Board> result = boardRepository.findAll(boardRepository.makePredicate(pageVO.getType(), pageVO.getKeyword()), pageable);
+//        Page<Board> result = boardRepository.findAll(boardRepository.makePredicate(pageVO.getType(), pageVO.getKeyword()), pageable);
+
+        Page<Object[]> result = boardRepository.getCustomPage(pageVO.getType(), pageVO.getKeyword(), pageable);
 
         log.info("" + pageable);
         log.info("" + result);
