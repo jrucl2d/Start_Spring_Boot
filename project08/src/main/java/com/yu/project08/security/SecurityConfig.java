@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.sql.DataSource;
 
@@ -15,8 +17,9 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-//    @Autowired
-//    DataSource dataSource;
+    @Autowired
+    DataSource dataSource; // remember-me를 위해
+
     @Autowired
     PrincipalDetailsService principalDetailsService;
 
@@ -36,7 +39,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 로그아웃(세션 무효화)
         http.logout().logoutUrl("/logout").invalidateHttpSession(true); // deleteCookies()를 사용할 수도 있음
 
-        http.userDetailsService(principalDetailsService); // 커스텀한 UserDetailService를 사용
+        http.rememberMe()
+                .key("yu")
+                .userDetailsService(principalDetailsService) // 커스텀한 UserDetailService를 사용
+                .tokenRepository(getJDBCRepository())
+                .tokenValiditySeconds(60 * 60 * 24); // 24시간동안 remember-me 쿠키가 유지됨
+    }
+
+    // 데이터베이스를 이용한 remember-me를 구현하기 위해
+    private PersistentTokenRepository getJDBCRepository(){
+        JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
+        repository.setDataSource(dataSource);
+        return repository;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return rawPassword.toString();
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return rawPassword.equals(encodedPassword);
+            }
+        };
     }
 
 //    @Autowired
@@ -59,20 +88,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //             .rolePrefix("ROLE_")
 //             .authoritiesByUsernameQuery(query2);
 //    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new PasswordEncoder() {
-            @Override
-            public String encode(CharSequence rawPassword) {
-                return rawPassword.toString();
-            }
-
-            @Override
-            public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return rawPassword.equals(encodedPassword);
-            }
-        };
-    }
-
 }
