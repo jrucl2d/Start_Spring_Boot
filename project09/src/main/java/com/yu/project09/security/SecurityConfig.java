@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/boards/register")
                 .hasAnyRole("BASIC", "MANAGER", "ADMIN");
 
-        http.formLogin().loginPage("/login");
+        http.formLogin().loginPage("/login").successHandler(new LoginSuccessHandler()); // 로그인 성공 후 인터셉터를 통해 미리 저장한 URL로 이동
 
         // Authorize에 실패했을 때 보여주는 안내창
         http.exceptionHandling().accessDeniedPage("/accessDenied");

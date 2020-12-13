@@ -160,7 +160,7 @@
 
                 if(uid === null){
                     if(confirm("로그인 할까요?")){
-                        location.href = [[@{'/login'}]];
+                        location.href = [[@{'/login'}]] + "?dest=" + encodeURIComponent(location);
                     }
                     return;
                 }
