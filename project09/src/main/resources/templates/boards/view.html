@@ -5,11 +5,12 @@
 
 
 <div layout:fragment="content">
+<!--    CSRF 토큰 처리되도록 의미없는 form 태그 생성-->
 
     <div class="panel-heading">View Page</div>
     <div class="panel-body">
 
-
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <div class="form-group">
             <label>글 번호</label> <input class="form-control" name="bno"
                                       th:value="${vo.bno}" readonly="readonly" />
@@ -90,7 +91,7 @@
                     <input type="text" class="form-control replyTextInput" name='replyText'>
 
                     <label>작성자</label>
-                    <input type="text" class="form-control replyerInput" name='replyer'>
+                    <input type="text" class="form-control replyerInput" name='replyer' readonly>
                 </div>
                 <div class="modal-footer">
                     <button id='delModalBtn'class="btn btn-danger">삭제</button>
@@ -115,6 +116,21 @@
             (()=> {
                 replyManager.getAll([[${vo.bno}]], printList);
             })();
+
+            const uid = [[${#authentication.principal} eq 'anonymousUser' ? null : ${#authentication.principal.member.uid}]];
+            const bno = [[${vo.bno}]];
+            let rno;
+            const replyTextObj = document.querySelector(".replyTextInput");
+            const replyerObj = document.querySelector(".replyerInput");
+
+            const csrf = JSON.parse('[[${_csrf}]]');
+
+            function afterAll(list) {
+                printList(list);
+                $("#myModal").modal("hide");
+                replyTextObj.value = '';
+                replyerObj.value = '';
+            }
 
             function printList(list) {
                 let str = "";
@@ -141,26 +157,22 @@
             // modal 창 관련
             let mode = null;
             document.querySelector("#addReplyBtn").addEventListener("click", () => {
+
+                if(uid === null){
+                    if(confirm("로그인 할까요?")){
+                        location.href = [[@{'/login'}]];
+                    }
+                    return;
+                }
+                replyerObj.value = uid; // 로그인한 사용자는 아이디가 고정됨
                 $("#myModal").modal("show");
                 document.querySelector(".modal-title").innerHTML = "댓글 추가";
+                $("#delModalBtn").hide();
                 mode = "ADD";
             })
 
-            // 댓글 관련
-            const bno = [[${vo.bno}]];
 
-            const replyTextObj = document.querySelector(".replyTextInput");
-            const replyerObj = document.querySelector(".replyerInput");
-
-            function afterAll(list) {
-                printList(list);
-                $("#myModal").modal("hide");
-                replyTextObj.value = '';
-                replyerObj.value = '';
-            }
-
-            // 댓글 삭제
-            let rno;
+            // 댓글 수정 및 삭제
             $("#replyTable").on("click", "tr", function (e){
                 e.preventDefault();
                 const tds= this.querySelectorAll("td");
@@ -171,11 +183,18 @@
                 replyerObj.value = tds[2].innerHTML;
                 $("#myModal").modal("show");
                 document.querySelector(".modal-title").innerHTML = "댓글 수정/삭제";
+
+                // 작성자 본인인 경우에만 수정 및 삭제 가능
+                if(uid !== tds[2].innerHTML.trim()){
+                    $("#delModalBtn").hide();
+                    $("#modalBtn").hide();
+                }
             })
             document.querySelector("#delModalBtn").addEventListener("click" , () => {
                 const obj = {
                     bno,
                     rno,
+                    csrf,
                 };
                 replyManager.remove(obj, list => {
                     printList(list);
@@ -195,6 +214,7 @@
                         replyText,
                         replyer,
                         bno,
+                        csrf,
                     };
                     replyManager.add(sendObj, function(list) {
                         alert("새로운 댓글이 추가되었습니다.");
@@ -205,6 +225,8 @@
                         replyText,
                         bno,
                         rno,
+                        replyer,
+                        csrf,
                     }
                     replyManager.update(sendObj, function(list) {
                         alert("댓글이 수정되었습니다.");

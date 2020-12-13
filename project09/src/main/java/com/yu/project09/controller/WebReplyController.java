@@ -7,6 +7,7 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,8 @@ public class WebReplyController {
         return replyRepository.getRepliesOfBoard(board);
     }
 
+    @Secured(value = {"ROLE_BASIC", "ROLE_MANAGER", "ROLE_ADMIN"})
+    @Transactional
     @PostMapping("/{bno}")
     public ResponseEntity<List<Reply>> addReply(@PathVariable("bno") Long bno, @RequestBody Reply reply){
         log.info("댓글 추가");
@@ -39,6 +42,7 @@ public class WebReplyController {
         return new ResponseEntity<>(getListsByBoard(board), HttpStatus.CREATED);
     }
 
+    @Secured(value = {"ROLE_BASIC", "ROLE_MANAGER", "ROLE_ADMIN"})
     @Transactional
     @DeleteMapping("/{bno}/{rno}")
     public ResponseEntity<List<Reply>> remove(@PathVariable Long bno, @PathVariable Long rno){
@@ -51,6 +55,7 @@ public class WebReplyController {
         return new ResponseEntity<>(getListsByBoard(board), HttpStatus.OK);
     }
 
+    @Secured(value = {"ROLE_BASIC", "ROLE_MANAGER", "ROLE_ADMIN"})
     @Transactional
     @PutMapping("/{bno}")
     public ResponseEntity<List<Reply>> modify(@PathVariable("bno") Long bno, @RequestBody Reply reply){
