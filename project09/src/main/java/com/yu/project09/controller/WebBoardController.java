@@ -9,6 +9,7 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,24 +60,14 @@ public class WebBoardController {
         boardRepository.findById(bno).ifPresent(board -> model.addAttribute("vo", board));
     }
 
+    @Secured(value = {"ROLE_BASIC", "ROLE_MANAGER", "ROLE_ADMIN"})
     @GetMapping("/modify")
     public void modify(Long bno, @ModelAttribute("pageVO") PageVO vo, Model model){
         log.info("MODIFY bno : " +bno);
         boardRepository.findById(bno).ifPresent(v -> model.addAttribute("vo", v));
     }
 
-    @PostMapping("/delete")
-    public String delete(Long bno, PageVO vo, RedirectAttributes redirectAttributes){
-        boardRepository.deleteById(bno);
-        redirectAttributes.addFlashAttribute("msg", "success");
-
-        redirectAttributes.addAttribute("page", vo.getPage());
-        redirectAttributes.addAttribute("size", vo.getSize());
-        redirectAttributes.addAttribute("type", vo.getType());
-        redirectAttributes.addAttribute("keyword", vo.getKeyword());
-        return "redirect:/boards/list";
-    }
-
+    @Secured(value = {"ROLE_BASIC", "ROLE_MANAGER", "ROLE_ADMIN"})
     @PostMapping("/modify")
     public String modifyPost(Board board, PageVO vo, RedirectAttributes redirectAttributes){
         boardRepository.findById(board.getBno()).ifPresent(origin -> {
@@ -93,5 +84,18 @@ public class WebBoardController {
         redirectAttributes.addAttribute("type", vo.getType());
         redirectAttributes.addAttribute("keyword", vo.getKeyword());
         return "redirect:/boards/view";
+    }
+
+    @Secured(value = {"ROLE_BASIC", "ROLE_MANAGER", "ROLE_ADMIN"})
+    @PostMapping("/delete")
+    public String delete(Long bno, PageVO vo, RedirectAttributes redirectAttributes){
+        boardRepository.deleteById(bno);
+        redirectAttributes.addFlashAttribute("msg", "success");
+
+        redirectAttributes.addAttribute("page", vo.getPage());
+        redirectAttributes.addAttribute("size", vo.getSize());
+        redirectAttributes.addAttribute("type", vo.getType());
+        redirectAttributes.addAttribute("keyword", vo.getKeyword());
+        return "redirect:/boards/list";
     }
 }
