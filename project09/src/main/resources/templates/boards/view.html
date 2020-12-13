@@ -1,6 +1,8 @@
 <html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{/layout/layout1}">
+
 
 <div layout:fragment="content">
 
@@ -35,8 +37,9 @@
                                           readonly="readonly" />
         </div>
 
-        <div class="pull-right">
-            <a th:href="@{ modify(page=${pageVO.page},
+        <div class="pull-right"  th:with="uid =${#authentication.principal} eq 'anonymousUser' ? 'Guest' :${#authentication.principal.member.uid} ">
+            <a th:if="${uid} eq ${vo.writer}"
+                    th:href="@{ modify(page=${pageVO.page},
 			                size=${pageVO.size},
 			                type=${pageVO.type},
 			                keyword=${pageVO.keyword},
